@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青海甘肃五一黄金周五日深度游</title>
+    <link rel="stylesheet" href="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-100-M/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --secondary: #8338ec;
+            --accent: #ff006e;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+        .hero {
+            background: linear-gradient(135deg, rgba(58,134,255,0.85) 0%, rgba(131,56,236,0.85) 100%), 
+                        url('https://images.unsplash.com/photo-1531572753323-ad063ce062d6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 700;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .day-card {
+            border-left: 4px solid var(--primary);
+        }
+        .weather-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .budget-card {
+            border-left: 4px solid var(--accent);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f5f7fa;
+            font-weight: 500;
+        }
+        .map-container {
+            height: 300px;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--light);
+        }
+        .transport {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+        .food {
+            background-color: #f1f8e9;
+            color: #33691e;
+        }
+        .scenic {
+            background-color: #fff8e1;
+            color: #ff6f00;
+        }
+        .nav-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .hero {
+                padding: 1.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>青海甘肃五一黄金周五日深度游</h1>
+        <p><i class="fas fa-calendar-alt"></i> 2025年5月1日-5月5日 | <i class="fas fa-users"></i> 推荐2-6人小团 | <i class="fas fa-map-marked-alt"></i> 全程约1200公里</p>
+    </div>
+
+    <div class="card weather-card">
+        <h2><i class="fas fa-cloud-sun"></i> 实时天气</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div>
+                <h3>西宁</h3>
+                <p>5月1日: 多云转晴 5~22℃</p>
+                <p>5月2日: 晴 7~24℃</p>
+            </div>
+            <div>
+                <h3>张掖</h3>
+                <p>5月3日: 晴 2~21℃</p>
+                <p>紫外线: 强</p>
+            </div>
+            <div>
+                <h3>敦煌</h3>
+                <p>5月4日: 多云 3~22℃</p>
+                <p>5月5日: 晴 8~26℃</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card day-card">
+        <h2><i class="fas fa-calendar-day"></i> 第一天：西宁集结 - 青海湖环湖游</h2>
+        <div class="map-container" id="day1-map"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>活动</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>08:00</td>
+                    <td>西宁市区酒店集合 <span class="tag"><i class="fas fa-hotel"></i> 住宿</span></td>
+                    <td>推荐索菲特酒店</td>
+                </tr>
+                <tr>
+                    <td>09:30</td>
+                    <td>出发前往青海湖 <span class="tag transport"><i class="fas fa-car"></i> 车程2.5h</span></td>
+                    <td>备好晕车药</td>
+                </tr>
+                <tr>
+                    <td>12:00</td>
+                    <td>青海湖南岸午餐 <span class="tag food"><i class="fas fa-utensils"></i> 藏式牦牛火锅</span></td>
+                    <td>人均约80元</td>
+                </tr>
+                <tr>
+                    <td>13:30</td>
+                    <td>二郎剑景区游览 <span class="tag scenic"><i class="fas fa-mountain"></i> 门票90元</span></td>
+                    <td>
+                        <a href="https://uri.amap.com/marker?position=100.496593,36.793121&name=青海湖二郎剑景区" class="nav-btn" target="_blank">
+                            <i class="fas fa-map-marked-alt"></i> 高德导航
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>19:00</td>
+                    <td>黑马河乡入住 <span class="tag"><i class="fas fa-hotel"></i> 格桑梅朵酒店</span></td>
+                    <td>海拔3200米</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card day-card">
+        <h2><i class="fas fa-calendar-day"></i> 第二天：天空之镜 - 祁连草原</h2>
+        <div class="map-container" id="day2-map"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>活动</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>06:00</td>
+                    <td>黑马河日出观景 <span class="tag scenic"><i class="fas fa-sun"></i> 免费</span></td>
+                    <td>气温约5℃</td>
+                </tr>
+                <tr>
+                    <td>08:30</td>
+                    <td>前往茶卡盐湖 <span class="tag transport"><i class="fas fa-car"></i> 车程1.5h</span></td>
+                    <td>109国道</td>
+                </tr>
+                <tr>
+                    <td>10:00</td>
+                    <td>茶卡盐湖游览 <span class="tag scenic"><i class="fas fa-water"></i> 门票60元</span></td>
+                    <td>
+                        <a href="https://uri.amap.com/marker?position=99.077978,36.797908&name=茶卡盐湖" class="nav-btn" target="_blank">
+                            <i class="fas fa-map-marked-alt"></i> 高德导航
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>15:30</td>
+                    <td>穿越祁连山草原 <span class="tag scenic"><i class="fas fa-tree"></i> 自然景观</span></td>
+                    <td>备好相机</td>
+                </tr>
+                <tr>
+                    <td>18:00</td>
+                    <td>祁连县入住 <span class="tag"><i class="fas fa-hotel"></i> 祁连大酒店</span></td>
+                    <td>海拔2787米</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card day-card">
+        <h2><i class="fas fa-calendar-day"></i> 第三天：七彩丹霞 - 张掖地质奇观</h2>
+        <div class="map-container" id="day3-map"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>活动</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>07:30</td>
+                    <td>出发前往张掖 <span class="tag transport"><i class="fas fa-car"></i> 车程4h</span></td>
+                    <td>227国道</td>
+                </tr>
+                <tr>
+                    <td>12:00</td>
+                    <td>张掖市区午餐 <span class="tag food"><i class="fas fa-utensils"></i> 卷子鸡</span></td>
+                    <td>人均约50元</td>
+                </tr>
+                <tr>
+                    <td>14:00</td>
+                    <td>张掖丹霞地质公园 <span class="tag scenic"><i class="fas fa-mountain"></i> 门票93元</span></td>
+                    <td>
+                        <a href="https://uri.amap.com/marker?position=100.04492,38.925875&name=张掖丹霞国家地质公园" class="nav-btn" target="_blank">
+                            <i class="fas fa-map-marked-alt"></i> 高德导航
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>19:30</td>
+                    <td>入住丹霞口小镇 <span class="tag"><i class="fas fa-hotel"></i> 特色民宿</span></td>
+                    <td>含早餐</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card day-card">
+        <h2><i class="fas fa-calendar-day"></i> 第四天：敦煌文化体验</h2>
+        <div class="map-container" id="day4-map"></div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>活动</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>06:30</td>
+                    <td>动车赴敦煌 <span class="tag transport"><i class="fas fa-train"></i> D2751次</span></td>
+                    <td>提前30分钟到站</td>
+                </tr>
+                <tr>
+                    <td>11:00</td>
+                    <td>敦煌市区午餐 <span class="tag food"><i class="fas fa-utensils"></i> 驴肉黄面</span></td>
+                    <td>人均约40元</td>
+                </tr>
+                <tr>
+                    <td>13:30</td>
+                    <td>莫高窟参观 <span class="tag scenic"><i class="fas fa-landmark"></i> 预约票238元</span></td>
+                    <td>
+                        <a href="https://uri.amap.com/marker?position=94.809375,40.137043&name=莫高窟" class="nav-btn" target="_blank">
+                            <i class="fas fa-map-marked-alt"></i> 高德导航
+                        </a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>16:30</td>
+                    <td>鸣沙山月牙泉 <span class="tag scenic"><i class="fas fa-camel"></i> 门票110元</span></td>
+                    <td>骑骆驼100元</td>
+                </tr>
+                <tr>
+                    <td>20:00</td>
+                    <td>沙漠露营体验 <span class="tag"><i class="fas fa-campground"></i> 含烧烤298元</span></td>
+                    <td>备好保暖衣物</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card budget-card">
+        <h2><i class="fas fa-wallet"></i> 预算参考（人均）</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>项目</th>
+                    <th>费用</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>交通</td>
+                    <td>3000元</td>
+                    <td>含机票/火车/包车</td>
+                </tr>
+                <tr>
+                    <td>住宿</td>
+                    <td>800元</td>
+                    <td>四晚准四标准</td>
+                </tr>
+                <tr>
+                    <td>门票</td>
+                    <td>650元</td>
+                    <td>含所有景区门票</td>
+                </tr>
+                <tr>
+                    <td>餐饮</td>
+                    <td>500元</td>
+                    <td>每日三餐预算</td>
+                </tr>
+                <tr>
+                    <td>其他</td>
+                    <td>300元</td>
+                    <td>纪念品/保险等</td>
+                </tr>
+                <tr style="font-weight: bold;">
+                    <td>总计</td>
+                    <td>5250元</td>
+                    <td>浮动±15%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-exclamation-triangle"></i> 重要提示</h2>
+        <ul style="padding-left: 20px;">
+            <li><strong>高原反应</strong>：首日避免洗澡，备好红景天和氧气瓶</li>
+            <li><strong>防晒措施</strong>：SPF50+防晒霜、墨镜、遮阳帽必备</li>
+            <li><strong>证件准备</strong>：身份证、学生证（如有）、军官证等优惠证件</li>
+            <li><strong>紧急联系</strong>：
+                <ul>
+                    <li>西宁旅游投诉：0971-12345</li>
+                    <li>敦煌医院急诊：0937-8822120</li>
+                    <li>包车司机王师傅：138××××8888</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 初始化地图
+        function initMap(mapId, center, markers) {
+            const map = L.map(mapId).setView(center, 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            markers.forEach(marker => {
+                L.marker(marker.position)
+                    .addTo(map)
+                    .bindPopup(marker.name);
+            });
+        }
+
+        // 第一天地图：西宁-青海湖
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap('day1-map', [36.5, 101], [
+                {position: [36.617, 101.778], name: '西宁市区'},
+                {position: [36.793, 100.497], name: '青海湖二郎剑景区'}
+            ]);
+            
+            // 第二天地图：茶卡盐湖-祁连
+            initMap('day2-map', [37.5, 99], [
+                {position: [36.798, 99.078], name: '茶卡盐湖'},
+                {position: [38.18, 100.24], name: '祁连县'}
+            ]);
+            
+            // 第三天地图：张掖丹霞
+            initMap('day3-map', [38.925, 100.045], [
+                {position: [38.925, 100.045], name: '张掖丹霞地质公园'}
+            ]);
+            
+            // 第四天地图：敦煌
+            initMap('day4-map', [40.137, 94.809], [
+                {position: [40.137, 94.809], name: '莫高窟'},
+                {position: [40.09, 94.668], name: '鸣沙山月牙泉'}
+            ]);
+        });
+    </script>
+</body>
+</html>
